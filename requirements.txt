@@ -1,4 +1,4 @@
-zzFlask>=3.0,<4.0
+Flask>=3.0,<4.0
 gunicorn>=21.2
 Pillow>=10.0
 numpy>=1.26
