@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.DS_Store
+static/uploads/*
+!static/uploads/.gitkeep
+models/*.keras
+models/*.h5
+dataset/
+raw_dataset/

@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d1b">
+  <meta name="description"
+    content="Analyze an image for signs of AI generation with an AI-assisted image authenticity demo.">
+  <title>NexaVision AI — Image Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body data-has-result="{{ 'true' if (result or image_url or error) else 'false' }}">
+  <!-- NEXAVISION AI CARD POPUP & ROTATE INTRO -->
+  <div class="cinematic-intro" id="cinematicIntro" role="dialog" aria-modal="true"
+    aria-label="NexaVision AI Intro">
+    <!-- Cinematic Backdrop Atmosphere -->
+    <div class="intro-backdrop">
+      <div class="intro-spotlight-rear"></div>
+      <div class="intro-vignette"></div>
+      <div class="intro-ambient-glow"></div>
+    </div>
+
+    <!-- Quick Skip Option -->
+    <div class="intro-hud-top">
+      <button class="intro-skip-btn" id="skipIntroBtn" type="button" aria-label="Skip intro">
+        <span>SKIP</span>
+        <kbd>ESC ↗</kbd>
+      </button>
+    </div>
+
+    <!-- 3D Perspective Stage for Card Pop-Up, Rotate & Pop-Down -->
+    <div class="card-intro-stage" id="cardIntroStage">
+      <div class="nexa-card-wrapper is-animating" id="nexaCardWrapper">
+        <div class="nexa-card" id="nexaCard">
+          <!-- Card Front Face: NexaVision AI Image Intelligence -->
+          <div class="card-face card-front">
+            <div class="card-glass-shine"></div>
+            <div class="card-border-glow"></div>
+            <div class="card-header-badge">
+              <span class="card-badge-dot"></span>
+              <span>VISION ENGINE · 3.0</span>
+            </div>
+            <div class="card-emblem">
+              <svg viewBox="0 0 48 48" aria-hidden="true" class="card-icon-svg">
+                <defs>
+                  <linearGradient id="cardGradFront" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#75e5ef" />
+                    <stop offset="50%" stop-color="#a99bff" />
+                    <stop offset="100%" stop-color="#ff7b39" />
+                  </linearGradient>
+                </defs>
+                <path d="M24 4 L42 14 V34 L24 44 L6 34 V14 Z" fill="none" stroke="url(#cardGradFront)" stroke-width="2.2" />
+                <path d="m14 24 7 7 13-14" fill="none" stroke="url(#cardGradFront)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="24" cy="24" r="3" fill="#75e5ef" />
+              </svg>
+            </div>
+            <div class="card-body">
+              <h1 class="card-title">NEXAVISION <span>AI</span></h1>
+              <p class="card-tagline">IMAGE INTELLIGENCE</p>
+              <div class="card-divider-line"></div>
+              <p class="card-subtext">AUTHENTICITY VERIFICATION</p>
+            </div>
+            <div class="card-footer-tags">
+              <span>NEURAL SCAN</span>
+              <span>FORENSIC AI</span>
+            </div>
+          </div>
+
+          <!-- Card Back Face: DEVELOPERZ-AREA -->
+          <div class="card-face card-back">
+            <div class="card-glass-shine"></div>
+            <div class="card-border-glow purple"></div>
+            <div class="card-header-badge">
+              <span class="card-badge-dot purple"></span>
+              <span>ENGINEERED LAB</span>
+            </div>
+            <div class="card-emblem">
+              <div class="dev-area-symbol">◈</div>
+            </div>
+            <div class="card-body">
+              <h2 class="card-title dev-title">DEVELOPERZ<span>-AREA</span></h2>
+              <p class="card-tagline">ADVANCED TECHNOLOGY</p>
+              <div class="card-divider-line purple-line"></div>
+              <p class="card-subtext">INTELLIGENCE PLATFORM</p>
+            </div>
+            <div class="card-footer-tags">
+              <span>SYSTEM READY</span>
+              <span>PRECISION AI</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scan-transition" id="scanTransition" aria-hidden="true">
+    <div class="scan-hud-top"><span><i></i> NEXAVISION AI / VISION ENGINE</span><span id="scanCounter">SCAN 01 /
+        04</span></div>
+    <div class="scan-hud-grid"></div>
+    <div class="scan-stage">
+      <div class="scan-orbit orbit-left"></div>
+      <div class="scan-orbit orbit-right"></div>
+      <div class="scan-image-shell" id="scanImageShell">
+        <div class="scan-image-placeholder" id="scanImagePlaceholder">NV</div><img id="scanPreview"
+          alt="Image being analyzed">
+        <div class="scan-image-grid"></div>
+        <div class="scan-image-beam"></div>
+        <div class="scan-image-corners"></div><span class="scan-chip chip-a">PIXEL MAP</span><span
+          class="scan-chip chip-b">VISION AI</span><span class="scan-chip chip-c">SIGNAL DETECTED</span>
+      </div>
+      <div class="scan-radar"><i></i><i></i><i></i><b>NV</b></div>
+      <div class="scan-data data-left"><span>FRAME INPUT</span><strong id="scanFrame">READY</strong><span>RGB /
+          IMAGE</span></div>
+      <div class="scan-data data-right"><span>NEURAL ENGINE</span><strong id="scanEngine">STANDBY</strong><span>VISUAL
+          PATTERN MAP</span></div>
+    </div>
+    <div class="scan-copy">
+      <div class="scan-kicker"><span class="scan-live-dot"></span> LIVE IMAGE INTELLIGENCE</div>
+      <div class="transition-title" id="transitionTitle">INITIALIZING VISION ENGINE</div>
+      <div class="transition-subtitle" id="transitionSubtitle">Preparing image data for analysis...</div>
+    </div>
+    <div class="scan-progress-meta"><span id="scanProgressLabel">INITIALIZING</span><strong
+        id="scanPercent">08%</strong></div>
+    <div class="transition-progress"><i id="scanProgressBar"></i></div>
+    <div class="scan-log" id="scanLog"><span>› Loading visual pipeline</span><span>› Waiting for image
+        frame</span><span>› AI engine ready</span></div>
+    <div class="transition-corners"></div>
+    <div class="scan-hud-bottom"><span>NON-DESTRUCTIVE ANALYSIS</span><span>RESULTS ARE ESTIMATES · NOT FORENSIC
+        PROOF</span></div>
+  </div>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="NexaVision AI home">
+      <span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M20 3 34 11v18L20 37 6 29V11Z" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="m12 20 5 5 11-12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg></span>
+      <span>NexaVision<span class="brand-light">.AI</span><small>IMAGE INTELLIGENCE</small></span>
+    </a>
+    <nav class="nav-links"><a href="#analyzer">Analyzer</a><a href="#how-it-works">How it works</a><a
+        href="#capabilities">Capabilities</a></nav>
+    <div class="top-actions">
+      <button class="intro-replay-btn" type="button" id="replayIntroBtn" aria-label="Replay cinematic 3D intro"
+        title="Replay 3D intro">
+        <span class="replay-icon">✦</span>
+        <span>3D Intro</span>
+      </button>
+      <button class="theme-toggle" type="button" id="themeToggle" aria-label="Switch to light theme"
+        title="Switch theme"><span class="theme-icon" id="themeIcon">☼</span><span id="themeLabel">Light
+          mode</span></button>
+      {% if user %}
+      <div class="user-profile-pill">
+        <span class="user-avatar-dot"></span>
+        <span class="user-email-text" title="{{ user }}">{{ user_name|default(user) }}</span>
+        <a class="logout-link" href="{{ url_for('logout') }}" title="Sign out of NexaVision AI">Logout</a>
+      </div>
+      {% else %}
+      <a class="nav-login-btn" href="{{ url_for('login') }}">Sign In ↗</a>
+      {% endif %}
+      <a class="top-cta" href="#analyzer">Try analyzer <span>↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span class="pulse-dot"></span> UNIVERSAL IMAGE INTELLIGENCE <span
+          class="eyebrow-line"></span></div>
+      <h1>Look closer.<br><span>Know more.</span></h1>
+      <p class="hero-copy">People, pets, products, vehicles, landscapes, artwork, everyday objects — inspect any image
+        for signals of AI generation with one cinematic scan.</p>
+      <div class="hero-proof">
+        <div class="avatar-stack"><span>✦</span><span>◈</span><span>◎</span></div><span>Built for curious minds and
+          careful reviewers</span><span class="proof-divider"></span><span class="secure"><span>⌑</span> Private by
+          design</span>
+      </div>
+    </section>
+
+    <section class="workspace" id="analyzer">
+      <div class="section-heading">
+        <div><span class="mini-label">THE ANALYZER</span>
+          <h2>Inspect an image</h2>
+        </div><span class="step-chip"><span class="step-number">01</span> Upload &amp; analyze</span>
+      </div>
+      <div class="analyzer-grid">
+        <section class="upload-card glass-card">
+          <div class="card-topline"><span class="status-dot"></span><span>IMAGE INPUT</span><span
+              class="topline-right">JPG · PNG · WEBP</span></div>
+          <form method="post" enctype="multipart/form-data" id="uploadForm">
+            <label class="dropzone" id="dropzone" for="imageInput">
+              <div class="upload-visual" id="uploadVisual">
+                <div class="upload-ring"><svg viewBox="0 0 48 48" aria-hidden="true">
+                    <path d="M24 32V10m0 0-8 8m8-8 8 8M10 29v8a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-8" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg></div>
+              </div>
+              <strong id="dropTitle">Drop any image here</strong>
+              <span class="drop-subtitle" id="dropSubtitle">or click to browse files</span>
+              <span class="browse-button">Choose any image <span>↗</span></span>
+              <span class="file-hint">Maximum file size 10 MB</span>
+              <input id="imageInput" name="image" type="file"
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+            </label>
+            <div class="selected-file" id="selectedFile" hidden><span class="file-icon">▧</span><span
+                id="fileName"></span><button type="button" id="clearFile" aria-label="Remove selected image">×</button>
+            </div>
+            {% if error %}<div class="alert alert-error" role="alert">{{ error }}</div>{% endif %}
+            <button class="analyze-button" type="submit" id="analyzeButton"><span class="button-spark">✦</span><span
+                id="buttonText">Analyze image</span><span class="button-arrow">→</span></button>
+          </form>
+          <div class="upload-foot"><span><span class="tiny-lock">⌑</span> Your image is processed by this demo
+              server</span><span>Not a forensic guarantee</span></div>
+        </section>
+
+        <section class="result-card glass-card {% if result or image_url %}has-output{% endif %}" id="resultCard" aria-live="polite">
+          <div class="card-topline"><span class="status-dot purple"></span><span>ANALYSIS REPORT</span><span
+              class="topline-right">LIVE PREVIEW</span></div>
+          <div id="resultCardBody">
+          {% if result and image_url %}
+          <div class="result-content">
+            <div class="result-image-wrap"><img src="{{ image_url }}" alt="Uploaded image preview"><span
+                class="image-scan-line"></span><span class="image-tag">ANALYZED IMAGE</span></div>
+            <div class="result-summary">
+              <span class="mini-label">ESTIMATED CLASSIFICATION</span>
+              <h3 class="{% if result.ai_probability >= 50 %}result-ai{% else %}result-real{% endif %}">{{ result.label
+                }}</h3>
+              <div class="probability-row"><span>AI-generation score</span><strong>{{ result.ai_probability }}%</strong>
+              </div>
+              <div class="meter"><span style="width: {{ result.ai_probability }}%"></span></div>
+              <div class="probability-row confidence"><span>Model confidence estimate</span><strong>{{ result.confidence
+                  }}%</strong></div>
+              {% if result.forensic_note %}
+              <div class="result-forensic-tag" style="margin: 10px 0 0; padding: 6px 10px; border-radius: 6px; background: rgba(117, 229, 239, 0.08); border: 1px solid rgba(117, 229, 239, 0.22); color: var(--cyan); font-size: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <span>◈</span><span>{{ result.forensic_note }}</span>
+              </div>
+              {% endif %}
+              <p class="disclaimer">This is a model estimate, not proof. Lighting, compression, editing, and unfamiliar
+                image types can affect results.</p>
+            </div>
+          </div>
+          {% elif image_url %}
+          <div class="result-content">
+            <div class="result-image-wrap"><img src="{{ image_url }}" alt="Uploaded image preview"><span
+                class="image-tag">UPLOADED IMAGE</span></div>
+            <div class="empty-result model-warning">
+              <div class="empty-icon">!</div>
+              <h3>Model not ready</h3>
+              <p>{{ model_notice or "A trained model is needed to generate a prediction." }}</p><span
+                class="result-note">Your upload was received, but no classification was generated.</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="empty-result" id="emptyResult">
+            <div class="orbit-scene">
+              <div class="orbit orbit-a"></div>
+              <div class="orbit orbit-b"></div>
+              <div class="orbit orbit-c"></div>
+              <div class="orbit-core"><svg viewBox="0 0 64 64" aria-hidden="true">
+                  <rect x="13" y="13" width="38" height="38" rx="10" fill="none" stroke="currentColor"
+                    stroke-width="1.5" />
+                  <circle cx="25" cy="26" r="4" fill="currentColor" />
+                  <path d="m17 45 11-11 7 7 5-5 7 9" fill="none" stroke="currentColor" stroke-width="1.7"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                </svg></div><span class="orbit-star star-one">✦</span><span class="orbit-star star-two">✧</span>
+            </div>
+            <h3>Your report starts here</h3>
+            <p>Upload a person, pet, product, landscape, object, or artwork. Your analysis report will appear here.</p>
+            <div class="result-steps"><span><i>1</i> Upload</span><b>—</b><span><i>2</i>
+                Analyze</span><b>—</b><span><i>3</i> Review</span></div>
+          </div>
+          {% endif %}
+          </div>
+          {% if model_notice and not result and not image_url %}<div class="alert alert-info">{{ model_notice }}</div>{%
+          endif %}
+          <div class="result-foot"><span><span class="tiny-lock">◈</span> Results are estimates</span><span>Model
+              status: <b class="status-text" id="modelStatusText">{% if result %}Analysis complete{% else %}Awaiting image{% endif
+                %}</b></span></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="capabilities" id="capabilities">
+      <div class="section-heading">
+        <div><span class="mini-label">BUILT FOR CLARITY</span>
+          <h2>Simple on the surface. Thoughtful underneath.</h2>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon cyan">⌁</div>
+          <h3>Signal-led insights</h3>
+          <p>View the model's estimated AI-generation score in a clear, readable report.</p><span
+            class="feature-index">01 / ANALYZE</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon violet">◌</div>
+          <h3>Designed for focus</h3>
+          <p>A distraction-free workspace keeps the image and result front and center.</p><span class="feature-index">02
+            / REVIEW</span>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon mint">⌑</div>
+          <h3>Clear limitations</h3>
+          <p>Understand why a model score is an estimate, not a definitive authenticity verdict.</p><span
+            class="feature-index">03 / INTERPRET</span>
+        </article>
+      </div>
+    </section>
+
+    <section class="how-section" id="how-it-works">
+      <div class="how-copy"><span class="mini-label">HOW IT WORKS</span>
+        <h2>Three steps.<br><span>One clearer view.</span></h2>
+        <p>From portraits and sneakers to cars, food, architecture, pets, and digital art — the interface accepts any
+          image category.</p>
+      </div>
+      <div class="how-steps">
+        <div class="how-step"><span class="how-num">01</span>
+          <div>
+            <h3>Choose any image</h3>
+            <p>Upload a JPG, PNG, or WEBP file up to 10 MB.</p>
+          </div><span class="how-symbol">↗</span>
+        </div>
+        <div class="how-step"><span class="how-num">02</span>
+          <div>
+            <h3>Run the analysis</h3>
+            <p>The server preprocesses the image and sends it to the trained model.</p>
+          </div><span class="how-symbol">⌁</span>
+        </div>
+        <div class="how-step"><span class="how-num">03</span>
+          <div>
+            <h3>Review the estimate</h3>
+            <p>Use the score as one signal alongside context and human judgment.</p>
+          </div><span class="how-symbol">◈</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="disclaimer-banner"><span class="banner-icon">✦</span>
+      <div><strong>Good judgment needs more than a score.</strong>
+        <p>AI detectors can be wrong. Do not use this demo as the sole basis for high-stakes decisions.</p>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><a class="brand footer-brand" href="{{ url_for('index') }}"><span class="brand-mark"><svg
+          viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M20 3 34 11v18L20 37 6 29V11Z" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="m12 20 5 5 11-12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg></span><span>NexaVision<span class="brand-light">.AI</span><small>IMAGE
+          INTELLIGENCE</small></span></a><span>AI-assisted image review · Educational demo</span><span>© <span
+        id="year"></span> NexaVision AI</span></footer>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+
+</html>

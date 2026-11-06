@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080d1b">
+  <title>Login · NexaVision AI Image Intelligence</title>
+  <meta name="description" content="Sign in to NexaVision AI Image Intelligence platform to perform deep forensic neural scans.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Syne:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* =======================================================================
+       NEXAVISION AI AUTHENTICATION & LOGIN PAGE STYLES
+       ======================================================================= */
+    .login-viewport {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow-x: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .login-ambient-1 {
+      position: fixed;
+      top: -150px;
+      left: 15%;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(117, 229, 239, 0.16) 0%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .login-ambient-2 {
+      position: fixed;
+      bottom: -150px;
+      right: 15%;
+      width: 560px;
+      height: 560px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(169, 155, 255, 0.14) 0%, transparent 70%);
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .login-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: clamp(16px, 3vw, 24px) clamp(20px, 4vw, 56px);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      background: var(--topbar-bg);
+    }
+
+    .login-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(30px, 5vh, 60px) 20px;
+    }
+
+    .login-card-shell {
+      width: 100%;
+      max-width: 460px;
+      position: relative;
+      border-radius: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border-glow);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 30px 70px -15px rgba(0, 0, 0, 0.55),
+        0 0 45px rgba(117, 229, 239, 0.12);
+      backdrop-filter: blur(24px);
+      padding: clamp(28px, 5vw, 42px) clamp(22px, 5vw, 36px);
+      overflow: hidden;
+    }
+
+    .login-card-shell::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #75e5ef, #a99bff, transparent);
+      box-shadow: 0 0 12px #75e5ef;
+    }
+
+    .login-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      border-radius: 50px;
+      background: rgba(117, 229, 239, 0.08);
+      border: 1px solid rgba(117, 229, 239, 0.25);
+      color: var(--accent);
+      font: 700 9px var(--font);
+      letter-spacing: 1.6px;
+      margin-bottom: 16px;
+    }
+
+    .login-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #75e5ef;
+      box-shadow: 0 0 8px #75e5ef;
+      animation: dotPulse 1.5s ease-in-out infinite;
+    }
+
+    .login-brand-head {
+      margin-bottom: 24px;
+    }
+
+    .login-brand-title {
+      font-family: var(--display);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin: 0;
+      color: var(--heading);
+    }
+
+    .login-brand-title span {
+      background: linear-gradient(105deg, #75e5ef 0%, #a99bff 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .login-brand-subtitle {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin: 6px 0 0;
+      letter-spacing: 0.5px;
+    }
+
+    /* Error Alert */
+    .login-error-alert {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 68, 68, 0.12);
+      border: 1px solid rgba(255, 68, 68, 0.35);
+      color: #ff8585;
+      font-size: 12.5px;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      animation: alertShake 0.35s ease;
+    }
+
+    @keyframes alertShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    .login-error-alert svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Form Fields */
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .login-field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .login-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .login-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .login-input-icon {
+      position: absolute;
+      left: 14px;
+      width: 17px;
+      height: 17px;
+      color: var(--text-subtle);
+      pointer-events: none;
+      transition: color 0.2s ease;
+    }
+
+    .login-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 44px 0 42px;
+      border-radius: 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font: 500 14px var(--font);
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .login-input:focus {
+      border-color: #75e5ef;
+      background: var(--input-bg-focus);
+      box-shadow: 0 0 0 3px rgba(117, 229, 239, 0.18), 0 0 16px rgba(117, 229, 239, 0.2);
+    }
+
+    .login-input-wrap:focus-within .login-input-icon {
+      color: #75e5ef;
+    }
+
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-subtle);
+      padding: 6px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      transition: color 0.2s ease, background 0.2s ease;
+    }
+
+    .password-toggle-btn:hover {
+      color: var(--accent);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .password-toggle-btn svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    /* Options Row */
+    .login-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-top: -2px;
+    }
+
+    .remember-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      color: var(--text-dim);
+      user-select: none;
+    }
+
+    .remember-label input[type="checkbox"] {
+      accent-color: #75e5ef;
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    .forgot-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s ease;
+    }
+
+    .forgot-link:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    /* Submit Button */
+    .login-submit-btn {
+      width: 100%;
+      height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border-radius: 12px;
+      background: linear-gradient(105deg, #75e5ef 0%, #a99bff 100%);
+      border: none;
+      color: #050a14;
+      font: 700 13px var(--font);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 6px;
+      box-shadow: 0 4px 20px rgba(117, 229, 239, 0.35);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .login-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 26px rgba(117, 229, 239, 0.5);
+      filter: brightness(1.06);
+    }
+
+    .login-submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Demo Account Pill Helper */
+    .demo-accounts-box {
+      margin-top: 24px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(117, 229, 239, 0.04);
+      border: 1px dashed rgba(117, 229, 239, 0.22);
+    }
+
+    .demo-accounts-box h4 {
+      margin: 0 0 8px;
+      font-size: 10.5px;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: var(--font);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-accounts-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .demo-chip-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-dim);
+      font: 500 11.5px monospace;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .demo-chip-btn:hover {
+      background: rgba(117, 229, 239, 0.12);
+      border-color: rgba(117, 229, 239, 0.35);
+      color: var(--text);
+    }
+
+    .demo-chip-btn span.chip-badge {
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(117, 229, 239, 0.15);
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .login-footer-security {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .login-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font: 600 12px var(--font);
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .login-back-btn:hover {
+      background: rgba(117, 229, 239, 0.1);
+      border-color: var(--accent);
+      color: var(--heading);
+    }
+  </style>
+</head>
+
+<body class="login-viewport">
+  <div class="login-ambient-1"></div>
+  <div class="login-ambient-2"></div>
+
+  <!-- Header Navigation -->
+  <header class="login-header">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="NexaVision AI home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M20 3 34 11v18L20 37 6 29V11Z" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="m12 20 5 5 11-12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </span>
+      <span>NexaVision<span class="brand-light">.AI</span><small>IMAGE INTELLIGENCE</small></span>
+    </a>
+
+    <div class="top-actions">
+      <button class="theme-toggle" type="button" id="themeToggle" aria-label="Switch theme" title="Switch theme">
+        <span class="theme-icon" id="themeIcon">☼</span>
+        <span id="themeLabel">Light mode</span>
+      </button>
+      <a class="login-back-btn" href="{{ url_for('index') }}">
+        <span>← Home</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Login Form Container -->
+  <main class="login-main">
+    <div class="login-card-shell">
+      <div class="login-badge">
+        <span class="login-badge-dot"></span>
+        <span>VISION ENGINE · AUTH GATEWAY</span>
+      </div>
+
+      <div class="login-brand-head">
+        <h1 class="login-brand-title">AUTHENTICATE <span>AI</span></h1>
+        <p class="login-brand-subtitle">Sign in to access forensic image scans and intelligence models</p>
+      </div>
+
+      {% if error %}
+      <div class="login-error-alert" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <span>{{ error }}</span>
+      </div>
+      {% endif %}
+
+      <form class="login-form" method="POST" action="{{ url_for('login', next=request.args.get('next')) }}">
+        <!-- Email Input -->
+        <div class="login-field">
+          <label class="login-label" for="loginEmail">
+            <span>Email Address</span>
+            <span style="font-weight: normal; text-transform: none; color: var(--text-subtle);">Forensic Account</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <input class="login-input" type="email" id="loginEmail" name="email" value="{{ email|default('') }}"
+              placeholder="analyst@nexavision.ai" required autocomplete="email" autofocus>
+          </div>
+        </div>
+
+        <!-- Password Input -->
+        <div class="login-field">
+          <label class="login-label" for="loginPassword">
+            <span>Password</span>
+            <span style="font-weight: normal; text-transform: none; color: var(--text-subtle);">Min 6 characters</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <input class="login-input" type="password" id="loginPassword" name="password"
+              placeholder="••••••••••••" required autocomplete="current-password">
+            <button class="password-toggle-btn" type="button" id="togglePasswordBtn" aria-label="Toggle password visibility">
+              <svg id="eyeIconOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <svg id="eyeIconClosed" style="display: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="login-options">
+          <label class="remember-label">
+            <input type="checkbox" name="remember" value="true" checked>
+            <span>Remember session</span>
+          </label>
+          <a class="forgot-link" href="#" onclick="alert('Demo notice: You can log in with analyst@nexavision.ai / password123 or enter any valid email address and 6+ character password.'); return false;">
+            Forgot password?
+          </a>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="login-submit-btn" type="submit">
+          <span>Authenticate & Enter Suite</span>
+          <span>↗</span>
+        </button>
+      </form>
+
+      <!-- Quick Demo Access Pills -->
+      <div class="demo-accounts-box">
+        <h4><span>⚡</span> Quick Demo Accounts (Click to Fill)</h4>
+        <div class="demo-accounts-chips">
+          <button type="button" class="demo-chip-btn" onclick="fillCredentials('analyst@nexavision.ai', 'password123')">
+            <span>analyst@nexavision.ai</span>
+            <span class="chip-badge">ANALYST · AUTOFILL</span>
+          </button>
+          <button type="button" class="demo-chip-btn" onclick="fillCredentials('admin@nexavision.ai', 'admin123')">
+            <span>admin@nexavision.ai</span>
+            <span class="chip-badge">ADMIN · AUTOFILL</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="login-footer-security">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+        <span>256-bit Encrypted Session · Forensic Neural Pipeline</span>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Theme Switcher for Login Page
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeLabel = document.getElementById("themeLabel");
+
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      const isLight = theme === "light";
+      if (themeIcon) themeIcon.textContent = isLight ? "☾" : "☼";
+      if (themeLabel) themeLabel.textContent = isLight ? "Dark mode" : "Light mode";
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = isLight ? "#f4f7fc" : "#080d1b";
+    }
+
+    const savedTheme = (() => {
+      try { return localStorage.getItem("nexavision-theme"); }
+      catch (_) { return "dark"; }
+    })() || "dark";
+    applyTheme(savedTheme);
+
+    themeToggle?.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      applyTheme(next);
+      try { localStorage.setItem("nexavision-theme", next); } catch (_) {}
+    });
+
+    // Password Visibility Toggle
+    const passwordInput = document.getElementById("loginPassword");
+    const toggleBtn = document.getElementById("togglePasswordBtn");
+    const eyeOpen = document.getElementById("eyeIconOpen");
+    const eyeClosed = document.getElementById("eyeIconClosed");
+
+    toggleBtn?.addEventListener("click", () => {
+      if (!passwordInput) return;
+      const isPass = passwordInput.type === "password";
+      passwordInput.type = isPass ? "text" : "password";
+      if (eyeOpen && eyeClosed) {
+        eyeOpen.style.display = isPass ? "none" : "block";
+        eyeClosed.style.display = isPass ? "block" : "none";
+      }
+    });
+
+    // Demo Autofill Helper
+    function fillCredentials(email, password) {
+      const emailInput = document.getElementById("loginEmail");
+      const passInput = document.getElementById("loginPassword");
+      if (emailInput) {
+        emailInput.value = email;
+        emailInput.focus();
+      }
+      if (passInput) {
+        passInput.value = password;
+      }
+    }
+  </script>
+</body>
+
+</html>
+
